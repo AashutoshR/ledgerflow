@@ -4,6 +4,8 @@ A business workspace for clients, proposals, projects and tasks, with a separate
 
 Accounts and records are saved in PostgreSQL. Sample data is an optional development mode, disabled by default and in the hosted deployment. All payment funds are simulated GBP; no bank deposits or real-money payments are processed.
 
+[Open the application](https://ledgerflow-aashutoshr.onrender.com) | [Client portal](https://ledgerflow-aashutoshr.onrender.com/portal)
+
 ![LedgerFlow Studio](web/studio-preview.png)
 
 ## Working features
