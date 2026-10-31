@@ -1,0 +1,13 @@
+**/target/
+.env
+.idea/
+*.log
+node_modules/
+dist/
+.env.*
+!.env.example
+!**/.env.example
+**/__pycache__/
+*.pem
+*.key
+services/gateway/src/main/resources/static/

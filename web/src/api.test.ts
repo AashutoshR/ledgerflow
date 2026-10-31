@@ -1,0 +1,8 @@
+import {it,expect,vi,afterEach} from 'vitest';
+vi.mock('oidc-client-ts',()=>({UserManager:class{getUser(){return Promise.resolve({expired:false,access_token:'test-token'});}},WebStorageStateStore:class{}}));
+vi.stubGlobal('window',{location:{origin:'http://localhost'},sessionStorage:{}});
+const {api,ApiError}=await import('./api');
+afterEach(()=>vi.unstubAllGlobals());
+it('preserves HTTP error status so forms can handle rejected requests',async()=>{vi.stubGlobal('fetch',vi.fn().mockResolvedValue(new Response(JSON.stringify({code:'RECORD_CONFLICT'}),{status:409})));await expect(api('/workspace')).rejects.toMatchObject({status:409,message:'RECORD_CONFLICT'});});
+it('supports task PATCH with bearer token and empty success response',async()=>{const fetch=vi.fn().mockResolvedValue(new Response(null,{status:200}));vi.stubGlobal('fetch',fetch);await expect(api('/workspace/tasks/id',{status:'DONE',version:1},undefined,'PATCH')).resolves.toBeUndefined();expect(fetch).toHaveBeenCalledWith('/api/v1/workspace/tasks/id',expect.objectContaining({method:'PATCH',headers:expect.objectContaining({Authorization:'Bearer test-token'}),body:'{"status":"DONE","version":1}'}));});
+it('retains payment idempotency headers and JSON responses',async()=>{const fetch=vi.fn().mockResolvedValue(new Response('{"id":"transfer-id","status":"PROCESSING"}'));vi.stubGlobal('fetch',fetch);await expect(api('/transfers',{amount:'10.00'},'stable-key')).resolves.toMatchObject({status:'PROCESSING'});expect(fetch).toHaveBeenCalledWith('/api/v1/transfers',expect.objectContaining({method:'POST',headers:expect.objectContaining({'Idempotency-Key':'stable-key'})}));});

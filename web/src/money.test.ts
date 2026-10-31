@@ -1,0 +1,2 @@
+import {expect,it} from 'vitest'; import {validAmount,pounds} from './money';
+it('keeps exact amounts and rejects unsupported precision',()=>{for(const s of ['0.00','-1.00','1e3','1.001','1'])expect(validAmount(s)).toBe(false);expect(validAmount('10.25')).toBe(true);expect(pounds('999999999999999.99')).toBe('£999,999,999,999,999.99');});

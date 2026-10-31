@@ -1,0 +1,49 @@
+# Disposable local smoke environment. These credentials are only for this test stack.
+name: ledgerflow-render-smoke
+services:
+  postgres:
+    image: postgres:17.6-alpine
+    environment:
+      POSTGRES_USER: smoke
+      POSTGRES_DB: smoke
+      POSTGRES_PASSWORD: local-smoke-only
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U smoke"]
+      interval: 2s
+      retries: 30
+  auth:
+    image: ledgerflow-auth:render
+    mem_limit: 512m
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGHOST: postgres
+      PGPORT: "5432"
+      PGDATABASE: smoke
+      PGUSER: smoke
+      PGPASSWORD: local-smoke-only
+      AUTH_HOST: auth.example.test
+      FRONTEND_HOST: app.example.test
+      KC_BOOTSTRAP_ADMIN_USERNAME: smoke-admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: local-smoke-admin-only
+      PAYMENTS_CLIENT_SECRET: local-smoke-service-only
+      PORT: "10000"
+    ports: ["127.0.0.1:18280:10000"]
+  workspace:
+    image: ledgerflow-workspace:render
+    mem_limit: 512m
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: render
+      PGHOST: postgres
+      PGPORT: "5432"
+      PGDATABASE: smoke
+      PGUSER: smoke
+      PGPASSWORD: local-smoke-only
+      AUTH_HOST: auth.example.test
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://auth:10000/realms/ledgerflow/protocol/openid-connect/certs
+      PORT: "10000"
+    ports: ["127.0.0.1:18286:10000"]

@@ -1,0 +1,11 @@
+.git
+**/node_modules
+**/target
+**/dist
+**/.env
+**/.env.*
+!**/.env.example
+**/*.log
+**/__pycache__
+web/*-preview.png
+web/redesign-preview.png

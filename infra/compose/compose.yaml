@@ -1,0 +1,40 @@
+name: ledgerflow
+services:
+  postgres:
+    image: postgres:17.6-alpine
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+      PAYMENTS_DB_PASSWORD: ${PAYMENTS_DB_PASSWORD:?Set PAYMENTS_DB_PASSWORD}
+      WORKSPACE_DB_PASSWORD: ${WORKSPACE_DB_PASSWORD:?Set WORKSPACE_DB_PASSWORD}
+      LEDGER_DB_PASSWORD: ${LEDGER_DB_PASSWORD:?Set LEDGER_DB_PASSWORD}
+    ports: ["127.0.0.1:5432:5432"]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init-db.sh:/docker-entrypoint-initdb.d/01-init.sh:ro
+      - ./payments-db.sh:/opt/bootstrap/payments-db.sh:ro
+      - ./workspace-db.sh:/opt/bootstrap/workspace-db.sh:ro
+      - ./workspace-db.sh:/docker-entrypoint-initdb.d/02-workspace.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+  rabbitmq:
+    image: rabbitmq:4.1.4-management-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: ledgerflow
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:?Set RABBITMQ_PASSWORD}
+    ports: ["127.0.0.1:5672:5672", "127.0.0.1:15672:15672"]
+    volumes: ["rabbitdata:/var/lib/rabbitmq"]
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.4.1
+    command: ["start-dev", "--import-realm"]
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:?Set KEYCLOAK_ADMIN_PASSWORD}
+    ports: ["127.0.0.1:8180:8080"]
+    volumes: ["./realm.json:/opt/keycloak/data/import/realm.json:ro", "keycloakdata:/opt/keycloak/data"]
+volumes:
+  pgdata:
+  rabbitdata:
+  keycloakdata:

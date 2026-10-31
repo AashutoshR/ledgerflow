@@ -1,0 +1,630 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "LedgerFlow wallet API",
+    "version": "0.1.0",
+    "description": "Implemented development endpoints only. Amounts are decimal strings. Offset pagination may shift when new postings arrive."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/api/v1"
+    }
+  ],
+  "security": [
+    {
+      "bearer": []
+    }
+  ],
+  "paths": {
+    "/wallets": {
+      "post": {
+        "summary": "Create or return the authenticated user GBP wallet",
+        "responses": {
+          "200": {
+            "description": "Successful result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Wallet"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Administrator role required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource unavailable to this user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Business rule conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/wallets/{id}/balance": {
+      "get": {
+        "summary": "Read an owned wallet balance",
+        "responses": {
+          "200": {
+            "description": "Successful result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Wallet"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Administrator role required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource unavailable to this user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Business rule conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ]
+      }
+    },
+    "/wallets/{id}/transactions": {
+      "get": {
+        "summary": "Read owned wallet history ordered by occurrence time and operation ID descending",
+        "responses": {
+          "200": {
+            "description": "Successful result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/History"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Administrator role required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource unavailable to this user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Business rule conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000,
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          }
+        ]
+      }
+    },
+    "/admin/wallets/{id}/freeze": {
+      "put": {
+        "summary": "Set freeze state; requires administrator realm role and audits every accepted request",
+        "responses": {
+          "200": {
+            "description": "Successful result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FreezeState"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Administrator role required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource unavailable to this user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Business rule conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FreezeRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/test/fundings": {
+      "post": {
+        "summary": "Add simulated funds to an owned wallet when explicitly enabled",
+        "responses": {
+          "200": {
+            "description": "Successful result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Operation"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Administrator role required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource unavailable to this user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Business rule conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Funding"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "required": [
+          "code",
+          "requestId"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "requestId": {
+            "type": "string"
+          }
+        }
+      },
+      "Wallet": {
+        "type": "object",
+        "required": [
+          "id",
+          "balance",
+          "currency"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "balance": {
+            "type": "string",
+            "pattern": "^-?[0-9]+\\.[0-9]{2}$",
+            "example": "10.25"
+          },
+          "currency": {
+            "const": "GBP"
+          }
+        }
+      },
+      "Operation": {
+        "type": "object",
+        "required": [
+          "id",
+          "status",
+          "amount",
+          "currency"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "const": "SUCCEEDED"
+          },
+          "amount": {
+            "type": "string",
+            "pattern": "^-?[0-9]+\\.[0-9]{2}$",
+            "example": "10.25"
+          },
+          "currency": {
+            "const": "GBP"
+          }
+        }
+      },
+      "Funding": {
+        "type": "object",
+        "required": [
+          "destinationWalletId",
+          "amount",
+          "currency"
+        ],
+        "properties": {
+          "destinationWalletId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "amount": {
+            "type": "string",
+            "pattern": "^[0-9]{1,15}\\.[0-9]{2}$",
+            "description": "Must be positive; exactly two decimal places"
+          },
+          "currency": {
+            "const": "GBP"
+          }
+        }
+      },
+      "FreezeRequest": {
+        "type": "object",
+        "required": [
+          "frozen",
+          "reason"
+        ],
+        "properties": {
+          "frozen": {
+            "type": "boolean"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500,
+            "description": "Must contain non-whitespace characters"
+          }
+        }
+      },
+      "FreezeState": {
+        "type": "object",
+        "required": [
+          "walletId",
+          "frozen"
+        ],
+        "properties": {
+          "walletId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "frozen": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Transaction": {
+        "type": "object",
+        "required": [
+          "operationId",
+          "kind",
+          "amount",
+          "currency",
+          "occurredAt"
+        ],
+        "properties": {
+          "operationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "enum": [
+              "FUNDING",
+              "TRANSFER"
+            ]
+          },
+          "amount": {
+            "type": "string",
+            "pattern": "^-?[0-9]+\\.[0-9]{2}$",
+            "example": "10.25"
+          },
+          "currency": {
+            "const": "GBP"
+          },
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "History": {
+        "type": "object",
+        "required": [
+          "items",
+          "page",
+          "size",
+          "hasNext"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Transaction"
+            }
+          },
+          "page": {
+            "type": "integer"
+          },
+          "size": {
+            "type": "integer"
+          },
+          "hasNext": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  }
+}

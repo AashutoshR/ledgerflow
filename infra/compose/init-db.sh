@@ -1,0 +1,10 @@
+#!/bin/sh
+set -eu
+psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname postgres --set=ledger_password="$LEDGER_DB_PASSWORD" --set=payments_password="$PAYMENTS_DB_PASSWORD" <<'SQL'
+CREATE ROLE ledger LOGIN PASSWORD :'ledger_password' NOSUPERUSER NOCREATEDB NOCREATEROLE;
+CREATE DATABASE ledger OWNER ledger;
+REVOKE ALL ON DATABASE ledger FROM PUBLIC;
+CREATE ROLE payments LOGIN PASSWORD :'payments_password' NOSUPERUSER NOCREATEDB NOCREATEROLE;
+CREATE DATABASE payments OWNER payments;
+REVOKE ALL ON DATABASE payments FROM PUBLIC;
+SQL

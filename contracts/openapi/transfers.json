@@ -1,0 +1,268 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "LedgerFlow transfers",
+    "version": "0.1.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/api/v1"
+    }
+  ],
+  "security": [
+    {
+      "bearer": []
+    }
+  ],
+  "paths": {
+    "/transfers": {
+      "post": {
+        "summary": "Create or return an actor-scoped idempotent transfer",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "sourceWalletId",
+                  "destinationWalletId",
+                  "amount",
+                  "currency"
+                ],
+                "properties": {
+                  "sourceWalletId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "destinationWalletId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "amount": {
+                    "type": "string",
+                    "pattern": "^[0-9]{1,15}\\.[0-9]{2}$",
+                    "description": "Positive GBP amount"
+                  },
+                  "currency": {
+                    "const": "GBP"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Pending; poll Location",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "status",
+                    "amount",
+                    "currency"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "status": {
+                      "enum": [
+                        "CREATED",
+                        "PROCESSING",
+                        "SUCCEEDED",
+                        "FAILED"
+                      ]
+                    },
+                    "amount": {
+                      "type": "string"
+                    },
+                    "currency": {
+                      "const": "GBP"
+                    },
+                    "ledgerOperationId": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "uuid"
+                    },
+                    "errorCode": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Location": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Existing completed outcome",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "status",
+                    "amount",
+                    "currency"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "status": {
+                      "enum": [
+                        "CREATED",
+                        "PROCESSING",
+                        "SUCCEEDED",
+                        "FAILED"
+                      ]
+                    },
+                    "amount": {
+                      "type": "string"
+                    },
+                    "currency": {
+                      "const": "GBP"
+                    },
+                    "ledgerOperationId": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "uuid"
+                    },
+                    "errorCode": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "409": {
+            "description": "Idempotency key reused with changed request"
+          }
+        }
+      }
+    },
+    "/transfers/{id}": {
+      "get": {
+        "summary": "Read transfer initiated by the authenticated user",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current outcome",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "status",
+                    "amount",
+                    "currency"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "status": {
+                      "enum": [
+                        "CREATED",
+                        "PROCESSING",
+                        "SUCCEEDED",
+                        "FAILED"
+                      ]
+                    },
+                    "amount": {
+                      "type": "string"
+                    },
+                    "currency": {
+                      "const": "GBP"
+                    },
+                    "ledgerOperationId": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "uuid"
+                    },
+                    "errorCode": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Transfer unavailable to caller"
+          },
+          "401": {
+            "description": "Authentication required"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

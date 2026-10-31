@@ -1,0 +1,181 @@
+services:
+  - type: web
+    name: ledgerflow-workspace-aashutoshr
+    runtime: docker
+    plan: free
+    region: frankfurt
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: SERVICE
+        value: workspace
+      - key: SPRING_PROFILES_ACTIVE
+        value: "render"
+      - key: AUTH_HOST
+        value: "ledgerflow-auth-aashutoshr.onrender.com"
+      - key: PGHOST
+        fromDatabase:
+          name: ledgerflow-data-aashutoshr
+          property: host
+      - key: PGPORT
+        fromDatabase:
+          name: ledgerflow-data-aashutoshr
+          property: port
+      - key: PGDATABASE
+        fromDatabase:
+          name: ledgerflow-data-aashutoshr
+          property: database
+      - key: PGUSER
+        fromDatabase:
+          name: ledgerflow-data-aashutoshr
+          property: user
+      - key: PGPASSWORD
+        fromDatabase:
+          name: ledgerflow-data-aashutoshr
+          property: password
+  - type: web
+    name: ledgerflow-ledger-aashutoshr
+    runtime: docker
+    plan: free
+    region: frankfurt
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: SERVICE
+        value: wallet-ledger
+      - key: SPRING_PROFILES_ACTIVE
+        value: "render"
+      - key: AUTH_HOST
+        value: "ledgerflow-auth-aashutoshr.onrender.com"
+      - key: PGHOST
+        fromDatabase:
+          name: ledgerflow-data-aashutoshr
+          property: host
+      - key: PGPORT
+        fromDatabase:
+          name: ledgerflow-data-aashutoshr
+          property: port
+      - key: PGDATABASE
+        fromDatabase:
+          name: ledgerflow-data-aashutoshr
+          property: database
+      - key: PGUSER
+        fromDatabase:
+          name: ledgerflow-data-aashutoshr
+          property: user
+      - key: PGPASSWORD
+        fromDatabase:
+          name: ledgerflow-data-aashutoshr
+          property: password
+      - key: TEST_FUNDING_ENABLED
+        value: "true"
+  - type: web
+    name: ledgerflow-payments-aashutoshr
+    runtime: docker
+    plan: free
+    region: frankfurt
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: SERVICE
+        value: payments
+      - key: SPRING_PROFILES_ACTIVE
+        value: "render"
+      - key: AUTH_HOST
+        value: "ledgerflow-auth-aashutoshr.onrender.com"
+      - key: PGHOST
+        fromDatabase:
+          name: ledgerflow-data-aashutoshr
+          property: host
+      - key: PGPORT
+        fromDatabase:
+          name: ledgerflow-data-aashutoshr
+          property: port
+      - key: PGDATABASE
+        fromDatabase:
+          name: ledgerflow-data-aashutoshr
+          property: database
+      - key: PGUSER
+        fromDatabase:
+          name: ledgerflow-data-aashutoshr
+          property: user
+      - key: PGPASSWORD
+        fromDatabase:
+          name: ledgerflow-data-aashutoshr
+          property: password
+      - key: LEDGER_HOST
+        value: "ledgerflow-ledger-aashutoshr.onrender.com"
+      - key: PAYMENTS_CLIENT_SECRET
+        fromService:
+          type: web
+          name: ledgerflow-auth-aashutoshr
+          envVarKey: PAYMENTS_CLIENT_SECRET
+  - type: web
+    name: ledgerflow-auth-aashutoshr
+    runtime: docker
+    plan: free
+    region: frankfurt
+    dockerfilePath: ./infra/render/Dockerfile.keycloak
+    dockerContext: .
+    healthCheckPath: /realms/ledgerflow/.well-known/openid-configuration
+    envVars:
+      - key: AUTH_HOST
+        value: "ledgerflow-auth-aashutoshr.onrender.com"
+      - key: FRONTEND_HOST
+        value: "ledgerflow-aashutoshr.onrender.com"
+      - key: KC_BOOTSTRAP_ADMIN_USERNAME
+        value: "ledgerflow-admin"
+      - key: KC_BOOTSTRAP_ADMIN_PASSWORD
+        generateValue: true
+      - key: PAYMENTS_CLIENT_SECRET
+        generateValue: true
+      - key: PGHOST
+        fromDatabase:
+          name: ledgerflow-data-aashutoshr
+          property: host
+      - key: PGPORT
+        fromDatabase:
+          name: ledgerflow-data-aashutoshr
+          property: port
+      - key: PGDATABASE
+        fromDatabase:
+          name: ledgerflow-data-aashutoshr
+          property: database
+      - key: PGUSER
+        fromDatabase:
+          name: ledgerflow-data-aashutoshr
+          property: user
+      - key: PGPASSWORD
+        fromDatabase:
+          name: ledgerflow-data-aashutoshr
+          property: password
+  - type: web
+    name: ledgerflow-aashutoshr
+    runtime: docker
+    plan: free
+    region: frankfurt
+    dockerfilePath: ./infra/render/Dockerfile.gateway
+    dockerContext: .
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: "render"
+      - key: AUTH_HOST
+        value: "ledgerflow-auth-aashutoshr.onrender.com"
+      - key: WORKSPACE_HOST
+        value: "ledgerflow-workspace-aashutoshr.onrender.com"
+      - key: LEDGER_HOST
+        value: "ledgerflow-ledger-aashutoshr.onrender.com"
+      - key: PAYMENTS_HOST
+        value: "ledgerflow-payments-aashutoshr.onrender.com"
+databases:
+  - name: ledgerflow-data-aashutoshr
+    plan: free
+    region: frankfurt
+    databaseName: ledgerflow
+    user: ledgerflow
+    postgresMajorVersion: "17"
+    ipAllowList: []

@@ -1,0 +1,836 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "LedgerFlow Workspace API",
+    "version": "0.1.0"
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/api/v1/workspace": {
+      "get": {
+        "summary": "Owner-only workspace snapshot; latest 40 activity entries",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Snapshot"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required"
+          }
+        }
+      }
+    },
+    "/api/v1/workspace/clients": {
+      "post": {
+        "summary": "Create client; stable UUID makes an identical retry safe",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Client"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Client"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_INPUT"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "404": {
+            "description": "Owner-scoped referenced record not found"
+          },
+          "409": {
+            "description": "UUID reused with different input, or stale task version"
+          }
+        }
+      }
+    },
+    "/api/v1/workspace/projects": {
+      "post": {
+        "summary": "Create project; stable UUID makes an identical retry safe",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Project"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Project"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_INPUT"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "404": {
+            "description": "Owner-scoped referenced record not found"
+          },
+          "409": {
+            "description": "UUID reused with different input, or stale task version"
+          }
+        }
+      }
+    },
+    "/api/v1/workspace/tasks": {
+      "post": {
+        "summary": "Create task; stable UUID makes an identical retry safe",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Task"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Task"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_INPUT"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "404": {
+            "description": "Owner-scoped referenced record not found"
+          },
+          "409": {
+            "description": "UUID reused with different input, or stale task version"
+          }
+        }
+      }
+    },
+    "/api/v1/workspace/tasks/{id}": {
+      "patch": {
+        "summary": "Move task with optimistic version check",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Move"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Task updated; empty response body"
+          },
+          "400": {
+            "description": "INVALID_INPUT"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "404": {
+            "description": "Owner-scoped referenced record not found"
+          },
+          "409": {
+            "description": "UUID reused with different input, or stale task version"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1/workspace/proposals": {
+      "get": {
+        "summary": "List studio-owned drafts and published proposals",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Proposal"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "404": {
+            "description": "Not found or actor is not authorised for the proposal"
+          },
+          "409": {
+            "description": "Terminal state, changed retry input or invalid transition"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create immutable proposal draft; UUID makes matching retries safe",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Proposal"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "404": {
+            "description": "Not found or actor is not authorised for the proposal"
+          },
+          "409": {
+            "description": "Terminal state, changed retry input or invalid transition"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProposalDraft"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/workspace/portal": {
+      "get": {
+        "summary": "List non-draft proposals addressed to the actor verified email; studio owner excluded",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Proposal"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "404": {
+            "description": "Not found or actor is not authorised for the proposal"
+          },
+          "409": {
+            "description": "Terminal state, changed retry input or invalid transition"
+          }
+        }
+      }
+    },
+    "/api/v1/workspace/proposals/{id}": {
+      "get": {
+        "summary": "Read proposal, feedback and linked project progress",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Proposal"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "404": {
+            "description": "Not found or actor is not authorised for the proposal"
+          },
+          "409": {
+            "description": "Terminal state, changed retry input or invalid transition"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1/workspace/proposals/{id}/publish": {
+      "post": {
+        "summary": "Publish draft to the recipient portal; repeated SENT publication is safe",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Proposal"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "404": {
+            "description": "Not found or actor is not authorised for the proposal"
+          },
+          "409": {
+            "description": "Terminal state, changed retry input or invalid transition"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1/workspace/proposals/{id}/decision": {
+      "post": {
+        "summary": "Verified recipient accepts or declines; acceptance atomically creates one project and starter tasks",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Proposal"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "404": {
+            "description": "Not found or actor is not authorised for the proposal"
+          },
+          "409": {
+            "description": "Terminal state, changed retry input or invalid transition"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProposalDecision"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1/workspace/proposals/{id}/comments": {
+      "post": {
+        "summary": "Append feedback as studio or verified recipient; repeated comment UUID is safe",
+        "responses": {
+          "200": {
+            "description": "Comment saved; empty body"
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "404": {
+            "description": "Not found or actor is not authorised for the proposal"
+          },
+          "409": {
+            "description": "Terminal state, changed retry input or invalid transition"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProposalComment"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "Client": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "email",
+          "company"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "email": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 254,
+            "format": "email"
+          },
+          "company": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          }
+        }
+      },
+      "Project": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "description",
+          "dueDate"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "clientId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 1000
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "Task": {
+        "type": "object",
+        "required": [
+          "id",
+          "projectId",
+          "title"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "projectId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          }
+        }
+      },
+      "Move": {
+        "type": "object",
+        "required": [
+          "status",
+          "version"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "TODO",
+              "DOING",
+              "DONE"
+            ]
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "TaskState": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Task"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "TODO",
+                  "DOING",
+                  "DONE"
+                ]
+              },
+              "version": {
+                "type": "integer"
+              }
+            }
+          }
+        ]
+      },
+      "Activity": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "message": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Snapshot": {
+        "type": "object",
+        "properties": {
+          "clients": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Client"
+            }
+          },
+          "projects": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Project"
+            }
+          },
+          "tasks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TaskState"
+            }
+          },
+          "activity": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Activity"
+            }
+          }
+        }
+      },
+      "ProposalLine": {
+        "type": "object",
+        "required": [
+          "title",
+          "amount"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "amount": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]{0,8})\\.[0-9]{2}$",
+            "description": "Positive GBP decimal string; zero is rejected."
+          }
+        }
+      },
+      "ProposalDraft": {
+        "type": "object",
+        "required": [
+          "id",
+          "clientId",
+          "title",
+          "brief",
+          "dueDate",
+          "lines"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "clientId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "brief": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "lines": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "$ref": "#/components/schemas/ProposalLine"
+            }
+          }
+        }
+      },
+      "Proposal": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ProposalDraft"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "DRAFT",
+                  "SENT",
+                  "ACCEPTED",
+                  "DECLINED"
+                ]
+              },
+              "projectId": {
+                "type": "string",
+                "format": "uuid",
+                "nullable": true
+              },
+              "company": {
+                "type": "string"
+              },
+              "recipientEmail": {
+                "type": "string",
+                "format": "email"
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "comments": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "authorRole": {
+                      "type": "string",
+                      "enum": [
+                        "STUDIO",
+                        "CLIENT"
+                      ]
+                    },
+                    "body": {
+                      "type": "string"
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              },
+              "tasks": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "TODO",
+                        "DOING",
+                        "DONE"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "ProposalDecision": {
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACCEPTED",
+              "DECLINED"
+            ]
+          }
+        }
+      },
+      "ProposalComment": {
+        "type": "object",
+        "required": [
+          "id",
+          "body"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "body": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          }
+        }
+      }
+    }
+  }
+}
