@@ -35,6 +35,7 @@
         "post.logout.redirect.uris": "https://${FRONTEND_HOST}"
       },
       "defaultClientScopes": [
+        "basic",
         "profile",
         "email"
       ]
@@ -122,6 +123,24 @@
             "access.token.claim": "true",
             "id.token.claim": "true",
             "userinfo.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "name": "basic",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "false"
+      },
+      "protocolMappers": [
+        {
+          "name": "sub",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-sub-mapper",
+          "config": {
+            "access.token.claim": "true",
+            "introspection.token.claim": "true"
           }
         }
       ]

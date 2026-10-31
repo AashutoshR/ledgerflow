@@ -28,7 +28,7 @@ def configure(base_url, realm_name, username, password):
     if len(clients) != 1:
         raise RuntimeError("Expected one existing ledgerflow-web client")
     for scope in desired["clientScopes"]:
-        if scope["name"] not in ("email", "profile"):
+        if scope["name"] not in ("basic", "email", "profile"):
             continue
         scopes = call("GET", "/client-scopes")
         existing = next((item for item in scopes if item["name"] == scope["name"]), None)

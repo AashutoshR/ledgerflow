@@ -9,6 +9,7 @@ COPY --from=build /opt/keycloak/ /opt/keycloak/
 COPY --from=bootstrap /build/Bootstrap.class /opt/keycloak/bootstrap/Bootstrap.class
 COPY infra/render/realm-render.json /opt/keycloak/data/import/ledgerflow-realm.json
 COPY --chmod=755 infra/render/keycloak-start.sh /opt/keycloak/keycloak-start.sh
+COPY infra/render/subject-mapper.json /opt/keycloak/subject-mapper.json
 ENV JAVA_OPTS_APPEND="-Xms64m -Xmx220m -XX:MaxMetaspaceSize=160m -XX:ReservedCodeCacheSize=32m -XX:MaxDirectMemorySize=32m -XX:ActiveProcessorCount=2"
 EXPOSE 10000
 ENTRYPOINT ["/opt/keycloak/keycloak-start.sh"]

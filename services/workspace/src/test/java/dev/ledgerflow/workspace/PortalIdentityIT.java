@@ -79,6 +79,7 @@ class PortalIdentityIT {
                 .retrieve()
                 .body(JsonNode.class);
         var token = decoder.decode(response.path("access_token").asText());
+        assertThat(token.getSubject()).isNotBlank();
         assertThat(token.getClaimAsString("email"))
             .isEqualTo(verified ? "verified@example.test" : "unverified@example.test");
         assertThat(token.getClaimAsBoolean("email_verified")).isEqualTo(verified);

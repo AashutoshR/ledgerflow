@@ -22,6 +22,8 @@ The root `render.yaml` deploys five free Docker web services and one free Postgr
 
 The Keycloak realm uses the frontend origin for callback/logout URLs and imports the service client secret from the runtime environment. Realm import skips an existing realm, so changed origins or client credentials on an already-initialized database must also be updated in the Keycloak administration console. Do not delete the realm or database to apply ordinary configuration updates.
 
+The authentication image also idempotently installs the browser subject mapper through the local Admin API after startup. This repairs older realm imports without replacing accounts. Basic subject, profile and email mappings are included in fresh imports.
+
 ## Data isolation and startup
 
 Free Render permits only one active free PostgreSQL database per workspace. The hosted services therefore use separate schemas: workspace, ledger, payments and keycloak. Flyway creates the application schemas; the Keycloak bootstrap creates its schema before authentication starts. Local development retains separate application databases and credentials.
@@ -47,6 +49,8 @@ For client-portal access, the client account's verified email must match the pro
 These limits are documented in [Render's free-tier guide](https://render.com/docs/free). This deployment does not establish an uptime or performance guarantee.
 
 ## Troubleshooting
+
+The disposable local deployment smoke stack can be started with `docker compose -f infra/render/compose.smoke.yaml up -d` after building its auth and workspace images. `python infra/render/smoke.py` verifies real signed identities, PostgreSQL writes, portal ownership, acceptance retries and deliverable progress. It only connects to the localhost test ports and uses disposable fixture credentials. It is never run against the hosted app.
 
 - Login redirects to localhost: check `/config.js`, AUTH_HOST and the Keycloak client's registered callback/origin values.
 - Invalid redirect URI: update the Keycloak ledgerflow-web client with the gateway's exact HTTPS `/callback` URL.
