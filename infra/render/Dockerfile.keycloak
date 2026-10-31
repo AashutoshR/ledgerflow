@@ -11,5 +11,6 @@ COPY infra/render/realm-render.json /opt/keycloak/data/import/ledgerflow-realm.j
 COPY --chmod=755 infra/render/keycloak-start.sh /opt/keycloak/keycloak-start.sh
 COPY infra/render/subject-mapper.json /opt/keycloak/subject-mapper.json
 ENV JAVA_OPTS_APPEND="-Xms64m -Xmx220m -XX:MaxMetaspaceSize=160m -XX:ReservedCodeCacheSize=32m -XX:MaxDirectMemorySize=32m -XX:ActiveProcessorCount=2"
+ENV KC_DB_POOL_INITIAL_SIZE=1 KC_DB_POOL_MIN_SIZE=1 KC_DB_POOL_MAX_SIZE=3
 EXPOSE 10000
 ENTRYPOINT ["/opt/keycloak/keycloak-start.sh"]

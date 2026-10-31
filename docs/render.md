@@ -32,6 +32,8 @@ All hosted database connections use the private database host. External database
 
 Free web services cannot receive private-network requests. The gateway and payments workflow call the public HTTPS service endpoints instead. Each target validates tokens. Ledger posting additionally requires the payments service scope, audience and client identity. No secrets are sent to the frontend.
 
+Database pools are deliberately small for the shared free instance. Keycloak uses one initial connection and at most three connections. Build filters avoid rebuilding unrelated services for ordinary source or documentation changes.
+
 ## Accounts and portal
 
 Application users can register through Keycloak. Their workspace starts empty and is persisted in PostgreSQL. Financial funds are simulated; designated test funding is enabled in this portfolio deployment.

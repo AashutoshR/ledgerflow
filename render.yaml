@@ -1,6 +1,14 @@
 services:
   - type: web
     name: ledgerflow-workspace-aashutoshr
+    buildFilter:
+      paths:
+        - "services/workspace/**"
+        - "Dockerfile"
+        - "pom.xml"
+        - "mvnw"
+        - ".mvn/**"
+        - ".dockerignore"
     runtime: docker
     plan: free
     region: frankfurt
@@ -36,6 +44,14 @@ services:
           property: password
   - type: web
     name: ledgerflow-ledger-aashutoshr
+    buildFilter:
+      paths:
+        - "services/wallet-ledger/**"
+        - "Dockerfile"
+        - "pom.xml"
+        - "mvnw"
+        - ".mvn/**"
+        - ".dockerignore"
     runtime: docker
     plan: free
     region: frankfurt
@@ -73,6 +89,14 @@ services:
         value: "true"
   - type: web
     name: ledgerflow-payments-aashutoshr
+    buildFilter:
+      paths:
+        - "services/payments/**"
+        - "Dockerfile"
+        - "pom.xml"
+        - "mvnw"
+        - ".mvn/**"
+        - ".dockerignore"
     runtime: docker
     plan: free
     region: frankfurt
@@ -112,6 +136,14 @@ services:
         fromService:
           type: web
           name: ledgerflow-auth-aashutoshr
+    buildFilter:
+      paths:
+        - "infra/render/Dockerfile.keycloak"
+        - "infra/render/Bootstrap.java"
+        - "infra/render/keycloak-start.sh"
+        - "infra/render/realm-render.json"
+        - "infra/render/subject-mapper.json"
+        - ".dockerignore"
           envVarKey: PAYMENTS_CLIENT_SECRET
   - type: web
     name: ledgerflow-auth-aashutoshr
@@ -154,6 +186,15 @@ services:
           property: password
   - type: web
     name: ledgerflow-aashutoshr
+    buildFilter:
+      paths:
+        - "services/gateway/**"
+        - "web/**"
+        - "infra/render/Dockerfile.gateway"
+        - "pom.xml"
+        - "mvnw"
+        - ".mvn/**"
+        - ".dockerignore"
     runtime: docker
     plan: free
     region: frankfurt
